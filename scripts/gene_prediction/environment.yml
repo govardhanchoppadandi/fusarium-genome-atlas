@@ -1,0 +1,7 @@
+name: fusarium_gene
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - augustus
+  - gffread
