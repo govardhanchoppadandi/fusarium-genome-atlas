@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Excel data and generated outputs (avoid publishing private/restricted datasets)
+*.xlsx
+*.xls
+*.csv
+
+# Secrets and local configuration
+.env
