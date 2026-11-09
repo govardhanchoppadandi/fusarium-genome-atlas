@@ -105,17 +105,19 @@ Planned analyses:
 
 ### Stage 6: Pathogenicity-Associated Protein Analysis
 
-Candidate protein characterization will be investigated using suitable computational tools, including:
+### Secretome and Effector Prediction Workflow
 
-- SignalP — signal peptide prediction
-- DeepTMHMM — transmembrane topology prediction
-- TargetP — protein targeting prediction
-- DeepLoc — protein subcellular localization
-- Effector prediction tools such as EffectorP
+The secretome and effector prediction strategy follows the methodology described in Govardhan et al. (2026).
 
-Additional analyses may include secretome characterization, candidate effector identification, CAZyme analysis and other pathogenicity-associated protein families.
+![Secretome and effector prediction workflow](docs/figures/secretome_effector_prediction_workflow.png)
 
-Predictions will be treated as computational candidates and not as experimental confirmation of virulence.
+**Figure:** Computational workflow for secretome and fungal effector prediction, including SignalP, DeepTMHMM, NetGPI, TargetP, DeepLoc, EffectorP, BLASTp and InterProScan.
+
+**Methodological reference:** Govardhan et al. (2026). Full publication details and DOI to be added.
+
+The workflow is being implemented using locally executable Bash and Python scripts for comparative analysis of wheat-associated Fusarium genomes.
+
+See the [detailed workflow documentation](docs/secretome_effector_workflow.md).
 
 ### Stage 7: Comparative and Evolutionary Genomics
 
