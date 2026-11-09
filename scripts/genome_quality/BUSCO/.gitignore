@@ -1,0 +1,16 @@
+*.fna
+*.fasta
+*.fa
+*.faa
+*.pep
+*.gff
+busco_downloads/
+results/
+logs/
+run_*/
+short_summary*.txt
+short_summary*.json
+*.log
+__pycache__/
+*.py[cod]
+.venv/

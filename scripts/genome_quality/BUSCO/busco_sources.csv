@@ -1,0 +1,8 @@
+genome_dir,protein_dir
+Fusarium tricinctum/busco_genome_outputs,Fusarium tricinctum/busco_protein_outputs
+Fusarium poae/busco_genome_outputs,Fusarium poae/busco_protein_outputs
+Fusarium graminearum/busco_genome_outputs,Fusarium graminearum/busco_protein_outputs
+Fusarium culmorum/busco_genome_outputs,Fusarium culmorum/busco_protein_outputs
+Fusarium avenaceum/busco_genome_outputs,Fusarium avenaceum/busco_protein_outputs
+Fusarium asiaticum/busco_genome_outputs,Fusarium asiaticum/busco_protein_outputs
+ALL SPECIES GENOMES/busco_outputs,ALL species proteins/busco_outputs

@@ -1,0 +1,8 @@
+name: fusarium_busco
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - busco=6.1.0
+  - openpyxl
