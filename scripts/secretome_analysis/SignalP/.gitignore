@@ -1,0 +1,38 @@
+# Input protein sequence data
+*.faa
+*.fasta
+*.fa
+*.FAA
+*.FASTA
+*.FA
+
+# SignalP model weights / large model files
+*.pt
+*.pth
+*.model
+*.h5
+
+# Conda / Python
+.conda/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Results and logs
+signalp/
+signal_positive.faa
+signalp.log
+signalp.done
+signalp_failed_*/
+signalp_failed_*.log
+signalp_backup_*/
+signal_positive_backup_*.faa
+signalp.done.backup_*
+signalp_previous_*.log
+.signalp_tmp.*/
+.signal_positive.tmp.*
+.signalp.log.tmp.*
+
+# Local environment / secrets
+.env
+.env.*

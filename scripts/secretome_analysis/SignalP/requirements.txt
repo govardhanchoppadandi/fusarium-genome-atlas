@@ -1,0 +1,4 @@
+# Python dependency used by the FASTA extraction step.
+# SignalP 6 and its PyTorch/model requirements must be installed separately
+# from the official licensed SignalP distribution.
+biopython==1.79
