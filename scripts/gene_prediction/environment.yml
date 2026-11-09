@@ -1,7 +1,10 @@
 name: fusarium_gene
+
 channels:
   - conda-forge
   - bioconda
+
 dependencies:
+  - python=3.11
   - augustus
   - gffread
