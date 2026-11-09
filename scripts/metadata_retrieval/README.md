@@ -110,7 +110,7 @@ Contains records missing at least one of the selected key metadata fields.
 Install dependencies:
 
 ```bash
-pip install pandas requests openpyxl tqdm
+py -m pip install -r requirements.txt
 ```
 
 ## 8. Execution
