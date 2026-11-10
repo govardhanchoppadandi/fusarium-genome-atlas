@@ -1,5 +1,4 @@
 
-cat > ~/01_signalp_functional_analysis.sh <<'BASH'
 #!/bin/bash
 set -Eeuo pipefail
 
@@ -72,7 +71,6 @@ for PROT in "${FILES[@]}"; do
     INPUT_SIZE=$(stat -c %s "$PROT")
     INPUT_MTIME=$(stat -c %Y "$PROT")
 
-    # Preserve the existing completed-result skip logic.
     if [ -f "$DONE" ] &&
        [ -f "$SIGOUT/prediction_results.txt" ] &&
        [ -f "$SP" ] &&
@@ -92,9 +90,7 @@ for PROT in "${FILES[@]}"; do
     TMP_SP="$DIR/.signal_positive.tmp.$$"
     TMP_LOG="$DIR/.signalp.log.tmp.$$"
 
-    # ------------------------------------------
-    # STEP 1: VALIDATE AND NORMALIZE INPUT FASTA
-    # ------------------------------------------
+    # STEP 1: VALIDATE FASTA
 
     if ! python - "$PROT" "$TMP_INPUT" <<'PY'
 import sys
@@ -106,8 +102,6 @@ from Bio.SeqRecord import SeqRecord
 source = sys.argv[1]
 destination = sys.argv[2]
 
-# Keep standard amino acids and X.
-# Convert all other characters to X.
 VALID = set("ACDEFGHIKLMNPQRSTVWYX")
 
 records = list(SeqIO.parse(source, "fasta"))
@@ -120,7 +114,6 @@ replacements = Counter()
 modified = 0
 
 for record in records:
-
     original = str(record.seq).upper()
 
     if not original:
@@ -154,7 +147,6 @@ for record in records:
 
 SeqIO.write(cleaned, destination, "fasta")
 
-# Verify the generated FASTA.
 verified = list(SeqIO.parse(destination, "fasta"))
 
 if len(verified) != len(records):
@@ -180,7 +172,10 @@ PY
         STAMP=$(date +%Y%m%d_%H%M%S)
 
         mv "$TMP_SIG" "$DIR/signalp_failed_$STAMP"
-        mv "$TMP_LOG" "$DIR/signalp_failed_$STAMP.log"
+
+        if [ -f "$TMP_LOG" ]; then
+            mv "$TMP_LOG" "$DIR/signalp_failed_$STAMP.log"
+        fi
 
         [ ! -f "$TMP_INPUT" ] || \
             mv "$TMP_INPUT" "$DIR/signalp_input_failed_$STAMP.faa"
@@ -189,9 +184,7 @@ PY
         continue
     fi
 
-    # ------------------------------------------
-    # STEP 2: RUN SIGNALP 6
-    # ------------------------------------------
+    # STEP 2: SIGNALP PREDICTION
 
     if ! python -m signalp.predict \
         --fastafile "$TMP_INPUT" \
@@ -225,10 +218,7 @@ PY
         continue
     fi
 
-    # ------------------------------------------
-    # STEP 3: EXTRACT COMPLETE POSITIVE SEQUENCES
-    # From validated input, preserving IDs.
-    # ------------------------------------------
+    # STEP 3: EXTRACT SIGNAL PEPTIDE POSITIVES
 
     if ! INPUT_FASTA="$TMP_INPUT" \
          PREDICTION_FILE="$TMP_SIG/prediction_results.txt" \
@@ -292,10 +282,7 @@ PY
         continue
     fi
 
-    # ------------------------------------------
     # STEP 4: PUBLISH SUCCESSFUL RESULTS
-    # Preserve previous results as backups.
-    # ------------------------------------------
 
     STAMP=$(date +%Y%m%d_%H%M%S)
 
@@ -319,8 +306,8 @@ PY
     mv "$TMP_SP" "$SP"
     mv "$TMP_LOG" "$DIR/signalp.log"
 
-    # Keep the validated input as an audit copy.
-    mv "$TMP_INPUT" "$DIR/signalp_validated_input.faa"
+    # Remove temporary validated FASTA after successful completion.
+    rm -f "$TMP_INPUT"
 
     {
         echo "INPUT_SIZE=$INPUT_SIZE"
@@ -344,8 +331,3 @@ echo "Already completed/skipped: $SKIPPED"
 echo "Failed: $FAILED"
 echo "Output folder: $OUT"
 echo "=========================================="
-BASH
-
-chmod +x ~/01_signalp_functional_analysis.sh
-
-bash ~/01_signalp_functional_analysis.sh
