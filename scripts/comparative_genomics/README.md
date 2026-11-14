@@ -1,145 +1,64 @@
-# Fusarium Comparative Genomics: Genome Preparation and Mash Phylogenetic Analysis
+# 781-Genome Mash Phylogenomic Analysis of *Fusarium*
 
-## 1. Project Overview
+## 1. Overview
 
-This workflow describes the preparation of a curated collection of *Fusarium* genome assemblies and the construction of a genome-wide Mash-based phylogenetic tree using Mashtree.
+This workflow describes the preparation of a curated collection of 781 *Fusarium* genome assemblies and the construction of a Mash-based phylogenetic tree using Mashtree.
+
+The analysis uses Mash genomic distances, Mashtree phylogenetic reconstruction and QuickTree for tree generation. Bootstrap resampling is performed using 1,000 replicates to estimate support for internal tree groupings.
 
 The workflow was developed using Ubuntu on Windows Subsystem for Linux (WSL), with a Conda environment for the required bioinformatics software.
 
-The analysis includes genome accession matching, dataset standardization, genome exclusion, Mash sketching, pairwise distance estimation, phylogenetic reconstruction and bootstrap support estimation.
+### Analysis summary
 
-### 1.1 Dataset Summary
-
-| Description | Number |
-|---|---:|
-| Original genome accessions in master Excel | 814 |
+| Parameter | Description |
+|---|---|
 | Original genome assemblies | 814 |
 | Excluded genome assemblies | 33 |
 | Retained genome assemblies | 781 |
 | Preliminary test genomes | 20 |
-| Final bootstrap replicates planned | 1,000 |
+| Distance estimation | Mash |
+| Phylogenetic reconstruction | Mashtree |
+| Tree-building software | QuickTree |
+| Bootstrap replicates | 1,000 |
 | CPU threads | 10 |
+| Tree output | Newick |
+| Distance matrix | TSV |
 
-### 1.2 Main Objectives
+## 2. Dataset Preparation
 
-1. Match genome accessions in the master Excel file with their corresponding genome assemblies.
-2. Prepare a standardized genome collection.
-3. Exclude the specified 33 genome assemblies.
-4. Generate Mash sketches.
-5. Estimate pairwise genome distances.
-6. Construct a phylogenetic tree using Mashtree and QuickTree.
-7. Estimate branch support using 1,000 bootstrap replicates.
-8. Export a Newick tree and distance matrix for downstream visualization and comparative analysis.
+### 2.1 Original Genome Collection
 
----
+The initial dataset consisted of 814 genome accessions documented in the master Excel file:
 
-## 2. Project Directory Structure
+`FUSARIUM_FINAL_MASTER.xlsx`
 
-The original project is stored on a Windows drive and accessed through Ubuntu using WSL.
-
-**Original Windows project directory:**
-
-`F:\fusarium WGS\`
-
-**Corresponding WSL directory:**
-
-`/mnt/f/fusarium WGS/`
-
-### 2.1 Main Project Organization
-
-```text
-fusarium WGS/
-│
-├── WGS/
-│   └── Original genome assemblies
-│
-└── ALL GENOMES/
-    │
-    ├── FUSARIUM_FINAL_MASTER.xlsx
-    │
-    ├── RESTORED_814/
-    │   └── 781 retained genome assemblies
-    │
-    ├── REMOVED GENOMES/
-    │   └── 33 excluded genome assemblies
-    │
-    └── MASH_ANALYSIS/
-        ├── Fusarium_781_Mash_tree_1000bootstraps.nwk
-        ├── Fusarium_781_Mash_distance_matrix.tsv
-        ├── Fusarium_781_Mash_analysis.log
-        └── mashtree_temp_781/
-```
-
-**Note:** The directory is named `RESTORED_814`, but after exclusions it contains 781 retained genome assemblies.
-
-The original `WGS` directory was preserved. Dataset selection and exclusion were performed in the working project directories.
-
-### 2.2 Temporary Working Directory
-
-To avoid errors caused by spaces in the main project path, a separate temporary directory was created:
-
-```text
-/mnt/f/MASHTREE_TMP/
-└── mashtree_run2/
-```
-
-This directory is used for temporary Mashtree files and intermediate analysis data.
-
----
-
-## 3. Genome Accession Matching and Dataset Preparation
-
-The master Excel file contained 814 unique genome accessions.
-
-Each accession was matched against the corresponding genome assembly files in the original source directory.
-
-### 3.1 Matching Verification
+Each accession was matched with its corresponding genome assembly in the original source directory.
 
 The matching procedure was checked for:
 
-- Unique genome accessions.
+- Unique accessions.
 - Corresponding genome assembly files.
 - Missing genome matches.
 - Multiple genome matches.
 - Duplicate genome abbreviations.
 
-The verification confirmed:
+The verification confirmed 814 unique accessions with one corresponding source genome file per accession.
 
-- 814 unique accessions.
-- 814 corresponding source genome files.
-- No missing matches.
-- No multiple matches.
-- No duplicate abbreviations.
+### 2.2 Genome Exclusion
 
-### 3.2 Genome Organization
+Thirty-three selected genome assemblies were excluded from the retained dataset.
 
-The matched genome assemblies were organized into:
+The excluded files were moved into:
 
-```text
-RESTORED_814/
-```
-
-The original source genome directory remained unchanged.
-
-### 3.3 Genome Exclusion
-
-A total of 33 selected genome assemblies were excluded from the retained dataset.
-
-The excluded assemblies were moved into:
-
-```text
-REMOVED GENOMES/
-```
+`REMOVED GENOMES/`
 
 The remaining 781 genome assemblies were retained in:
 
-```text
-RESTORED_814/
-```
+`RESTORED_814/`
 
-### 3.4 Excluded Genome Accessions
+The original source genome directory was preserved.
 
-The following 33 genome identifiers were excluded:
+### 2.3 Excluded Genome List
 
 ```text
 Fgram_CBS119800
@@ -177,29 +96,17 @@ Fusve_FV28948
 Fusve_FV34775.1
 ```
 
-### 3.5 Final Dataset Verification
+### 2.4 Final Dataset Verification
 
-| Directory | Verified number of files |
+| Directory | Genome assemblies |
 |---|---:|
-| RESTORED_814 | 781 |
-| REMOVED GENOMES | 33 |
-| Total | 814 |
+| Original collection | 814 |
+| Excluded collection | 33 |
+| Retained collection | 781 |
 
-Genome filenames containing spaces were standardized by removing spaces.
+Genome filenames containing spaces were standardized by removing spaces. All 781 retained genome filenames were verified to contain no spaces.
 
-Examples:
-
-```text
-Fusas_CBS110258.fna
-Fusod_race4.fna
-Fuspr_FFSCRH7.fna
-```
-
-All 781 retained genome filenames were verified to contain no spaces.
-
-### 3.6 Verify Genome Count
-
-The following command can be used to verify the retained dataset:
+Verify the retained genome count:
 
 ```bash
 cd "/mnt/f/fusarium WGS/ALL GENOMES/RESTORED_814"
@@ -213,88 +120,52 @@ Expected result:
 781
 ```
 
----
-
-## 4. Ubuntu, WSL and Conda Environment
+## 3. Computational Environment
 
 The analysis was performed using Ubuntu under Windows Subsystem for Linux (WSL).
 
-### 4.1 Activate the Conda Environment
+### 3.1 Conda Environment
+
+Activate the analysis environment:
 
 ```bash
 conda activate fusarium_tree
 ```
 
-### 4.2 Software Used
+### 3.2 Software
 
-| Software | Version / Configuration |
+| Software | Version / configuration |
 |---|---|
 | Mash | 2.3 |
 | Mashtree | 0.30 |
 | QuickTree | Conda environment |
 | Perl | Conda environment |
 | Python | Conda environment |
-| SQLite | Used through Perl DBI |
-| Operating environment | Ubuntu / WSL |
-| Environment manager | Conda |
+| Operating system | Ubuntu / WSL |
 
-### 4.3 Verify Software Installation
-
-Mash:
+Verify the installed software:
 
 ```bash
 mash --version
 ```
 
-Mashtree wrapper:
-
 ```bash
 which mashtree_wrapper.pl
 ```
-
-QuickTree:
 
 ```bash
 which quicktree
 ```
 
-Python:
-
 ```bash
 which python
 ```
 
-Perl:
+## 4. Mashtree Compatibility Corrections
 
-```bash
-perl --version
-```
+During preliminary testing, two compatibility problems were identified in the installed Mashtree source code. The original files were backed up before modification.
 
-### 4.4 Record Conda Environment
-
-The complete Conda package list can be recorded using:
-
-```bash
-conda list > fusarium_tree_conda_packages.txt
-```
-
-For a reproducible environment specification:
-
-```bash
-conda env export --no-builds > fusarium_tree_environment.yml
-```
-
----
-
-## 5. Mashtree Compatibility Corrections
-
-During preliminary testing, two compatibility problems were identified in the installed Mashtree source code.
-
-The original installed files were backed up before modification.
-
-These corrections were necessary for the installed version to complete the bootstrap procedure.
-
-### 5.1 Back Up the Original Files
+### 4.1 Backup Original Files
 
 ```bash
 cp "$CONDA_PREFIX/bin/mashtree_wrapper.pl" \
@@ -304,7 +175,7 @@ cp "$CONDA_PREFIX/lib/perl5/site_perl/5.22.0/Mashtree/Db.pm" \
 "$CONDA_PREFIX/lib/perl5/site_perl/5.22.0/Mashtree/Db.pm.backup"
 ```
 
-### 5.2 Correct the PHYLIP Formatting Arguments
+### 4.2 Correct PHYLIP Formatting Arguments
 
 The original wrapper contained:
 
@@ -312,13 +183,11 @@ The original wrapper contained:
 my $phylipString=$mashtreeDb->toString("phylip","rand");
 ```
 
-However, the database method expects the following argument order:
+The database method expects:
 
 ```perl
 toString($genome,$format,$sortBy)
 ```
-
-The original call incorrectly passed `"phylip"` as the first argument and `"rand"` as the second argument.
 
 The corrected code is:
 
@@ -326,33 +195,25 @@ The corrected code is:
 my $phylipString=$mashtreeDb->toString([],"phylip","rand");
 ```
 
-This specifies:
+This specifies an empty genome filter, PHYLIP format and randomized ordering.
 
-- An empty genome filter.
-- PHYLIP output format.
-- Randomized ordering.
+### 4.3 Correct SQLite Random Ordering
 
-### 5.3 Correct SQLite Random Ordering
-
-The original database implementation contained:
+The original database code contained:
 
 ```perl
 ORDER BY NEWID()
 ```
 
-The installed database uses SQLite.
-
-The SQLite-compatible random-ordering expression is:
+The SQLite-compatible expression is:
 
 ```perl
 ORDER BY RANDOM()
 ```
 
-This correction allows the randomized ordering operation used during bootstrap processing to work with SQLite.
+This correction addresses the random-ordering operation used during bootstrap processing.
 
-### 5.4 Apply the Corrections
-
-The following Python script was used to apply both exact modifications:
+### 4.4 Apply Both Corrections
 
 ```python
 from pathlib import Path
@@ -388,7 +249,7 @@ dbfile.write_text(
 print("Both corrections applied successfully.")
 ```
 
-### 5.5 Verify Perl Syntax
+### 4.5 Verify Perl Syntax
 
 ```bash
 perl -c "$CONDA_PREFIX/bin/mashtree_wrapper.pl"
@@ -396,34 +257,28 @@ perl -c "$CONDA_PREFIX/bin/mashtree_wrapper.pl"
 perl -c "$CONDA_PREFIX/lib/perl5/site_perl/5.22.0/Mashtree/Db.pm"
 ```
 
-Expected result:
+Both files should report:
 
 ```text
 syntax OK
 ```
 
-**Reproducibility note:** These are local compatibility modifications to the installed Conda environment. A new installation may require the same corrections or a compatible upstream software version. The modifications should be documented rather than assumed to be part of the original Mashtree release.
+**Reproducibility note:** These are local compatibility modifications to the installed Mashtree environment. A fresh installation may require the same corrections or a compatible software version.
 
----
+## 5. Preliminary 20-Genome Test
 
-## 6. Preliminary Mashtree Test
-
-Before running the complete 781-genome analysis, a preliminary test was performed using 20 genome assemblies.
-
-The purpose was to verify the complete basic workflow.
-
-### 6.1 Test Objectives
+Before performing the complete analysis, a preliminary test was conducted using 20 genome assemblies.
 
 The test evaluated:
 
-1. Genome sketching.
-2. Pairwise distance calculation.
-3. PHYLIP matrix generation.
-4. QuickTree construction.
-5. Bootstrap tree generation.
-6. Newick output generation.
+- Mash genome sketching.
+- Pairwise distance calculation.
+- PHYLIP matrix generation.
+- QuickTree construction.
+- Bootstrap tree generation.
+- Newick output.
 
-### 6.2 Test Command
+### 5.1 Test Command
 
 ```bash
 cd "/mnt/f/fusarium WGS/ALL GENOMES/RESTORED_814"
@@ -444,26 +299,22 @@ mashtree_wrapper.pl \
     2> "/mnt/f/fusarium WGS/ALL GENOMES/MASH_ANALYSIS/test_run.log"
 ```
 
-### 6.3 Test Results
+### 5.2 Test Results
 
-The corrected 20-genome test completed successfully.
+The preliminary test completed successfully after the compatibility corrections.
 
 Verified results:
 
-- All 20 genome labels were present in the Newick tree.
-- The distance matrix contained 21 lines.
-- Bootstrap support values were present in the Newick tree.
-- No bootstrap worker termination errors were reported.
+- 20 genome labels in the Newick tree.
+- 21 lines in the distance matrix.
+- Bootstrap support values present.
+- No bootstrap worker termination errors.
 
-The test confirmed that the corrected workflow could construct a bootstrap-supported tree on the test dataset.
+Two bootstrap replicates were used for technical testing only. The final analysis uses 1,000 replicates.
 
-**Important:** Two bootstrap replicates were used for this preliminary technical test only. They are not the final analysis settings.
+## 6. Temporary Directory Configuration
 
----
-
-## 7. Temporary Directory Configuration
-
-The original project directory contains spaces:
+The main project path contains spaces:
 
 ```text
 /mnt/f/fusarium WGS/
@@ -477,9 +328,9 @@ An example error was:
 Parent directory (/mnt/f/fusarium) is not a directory
 ```
 
-The issue was addressed by creating a separate temporary directory without spaces.
+To avoid this issue, a separate temporary directory without spaces was created.
 
-### 7.1 Create the Temporary Directory
+### 6.1 Create Temporary Directory
 
 ```bash
 mkdir -p /mnt/f/MASHTREE_TMP
@@ -487,7 +338,7 @@ mkdir -p /mnt/f/MASHTREE_TMP
 mkdir -p /mnt/f/MASHTREE_TMP/mashtree_run2
 ```
 
-### 7.2 Set TMPDIR
+### 6.2 Set TMPDIR
 
 ```bash
 export TMPDIR=/mnt/f/MASHTREE_TMP
@@ -505,42 +356,25 @@ Expected:
 /mnt/f/MASHTREE_TMP
 ```
 
-The temporary directory is separate from the main project directory to avoid internal path-handling problems.
+The final analysis uses this separate temporary directory.
 
-### 7.3 Storage Considerations
+## 7. Final 781-Genome Mash Phylogenomic Analysis
 
-Temporary files can require substantial storage during large genome analyses.
-
-Before running the analysis, check available disk space:
-
-```bash
-df -h /mnt/f
-```
-
-The temporary directory should be located on a filesystem with sufficient free space.
-
-Do not remove temporary files while Mashtree is running.
-
----
-
-## 8. Final Mash Phylogenomic Analysis: 781 Genomes
-
-### 8.1 Analysis Parameters
+### 7.1 Analysis Parameters
 
 | Parameter | Setting |
 |---|---|
 | Genome assemblies | 781 |
-| Input format | FASTA (`.fna`) |
 | Distance method | Mash |
-| Tree construction | Mashtree |
-| Tree-building executable | QuickTree |
+| Phylogenetic reconstruction | Mashtree |
+| Tree construction | QuickTree |
 | Bootstrap replicates | 1,000 |
 | CPU threads | 10 |
 | Tree format | Newick |
-| Distance matrix format | TSV |
+| Distance matrix | TSV |
 | Temporary directory | `/mnt/f/MASHTREE_TMP/mashtree_run2` |
 
-### 8.2 Create Output Directories
+### 7.2 Create Output Directories
 
 ```bash
 mkdir -p "/mnt/f/fusarium WGS/ALL GENOMES/MASH_ANALYSIS"
@@ -548,25 +382,25 @@ mkdir -p "/mnt/f/fusarium WGS/ALL GENOMES/MASH_ANALYSIS"
 mkdir -p /mnt/f/MASHTREE_TMP/mashtree_run2
 ```
 
-### 8.3 Activate the Conda Environment
+### 7.3 Activate Conda Environment
 
 ```bash
 conda activate fusarium_tree
 ```
 
-### 8.4 Configure the Temporary Directory
+### 7.4 Configure Temporary Directory
 
 ```bash
 export TMPDIR=/mnt/f/MASHTREE_TMP
 ```
 
-### 8.5 Move to the Genome Directory
+### 7.5 Navigate to the Genome Directory
 
 ```bash
 cd "/mnt/f/fusarium WGS/ALL GENOMES/RESTORED_814"
 ```
 
-### 8.6 Identify the Genome Assemblies
+### 7.6 Identify Genome Assemblies
 
 ```bash
 shopt -s nullglob
@@ -576,13 +410,13 @@ files=( *.fna )
 echo "Genome count: ${#files[@]}"
 ```
 
-Expected result:
+Expected:
 
 ```text
 Genome count: 781
 ```
 
-### 8.7 Execute the Complete Analysis
+### 7.7 Full Analysis Command
 
 ```bash
 mashtree_wrapper.pl \
@@ -597,49 +431,41 @@ mashtree_wrapper.pl \
 echo "Analysis exit code: $?"
 ```
 
-### 8.8 Expected Outputs
+### 7.8 Expected Output Files
 
-The command produces three principal output files:
+| Filename | Description |
+|---|---|
+| `Fusarium_781_Mash_tree_1000bootstraps.nwk` | Phylogenetic tree with bootstrap support |
+| `Fusarium_781_Mash_distance_matrix.tsv` | Pairwise Mash distance matrix |
+| `Fusarium_781_Mash_analysis.log` | Analysis progress and diagnostic log |
 
-1. `Fusarium_781_Mash_tree_1000bootstraps.nwk` — phylogenetic tree in Newick format.
-2. `Fusarium_781_Mash_distance_matrix.tsv` — pairwise Mash distance matrix.
-3. `Fusarium_781_Mash_analysis.log` — analysis messages, progress and errors.
+## 8. Running the Analysis with tmux
 
-The Newick file is written to standard output, while diagnostic messages are redirected to the log file.
+The full analysis may take considerable time. The tmux utility allows the process to continue independently of the visible terminal window.
 
----
-
-## 9. Running Long Analyses with tmux
-
-The 781-genome analysis is computationally intensive and may take a considerable amount of time.
-
-The workflow uses tmux to keep the analysis running independently of the visible terminal window.
-
-### 9.1 Start a tmux Session
+### 8.1 Start tmux
 
 ```bash
 tmux new -s fusarium781
 ```
 
-### 9.2 Activate the Environment
-
-Inside the tmux session:
+### 8.2 Activate the Environment
 
 ```bash
 conda activate fusarium_tree
 ```
 
-### 9.3 Configure TMPDIR
+### 8.3 Configure Temporary Directory
 
 ```bash
 export TMPDIR=/mnt/f/MASHTREE_TMP
 ```
 
-### 9.4 Execute the Full Analysis
+### 8.4 Execute the Full Analysis
 
-Run the complete command described in Section 8.
+Run the command described in Section 7.7.
 
-### 9.5 Detach from the Session
+### 8.5 Detach Safely
 
 Press:
 
@@ -647,61 +473,57 @@ Press:
 Ctrl + B
 ```
 
-Release the keys and press:
+Release both keys, then press:
 
 ```text
 D
 ```
 
-The tmux session remains active.
+The analysis continues in the background.
 
-### 9.6 Reconnect to the Session
+### 8.6 Reconnect to the Session
 
 ```bash
 tmux attach -t fusarium781
 ```
 
-### 9.7 List Active tmux Sessions
+### 8.7 Check Active Sessions
 
 ```bash
 tmux ls
 ```
 
-### 9.8 Monitor the Analysis Log
+### 8.8 Monitor Analysis Progress
 
 ```bash
 tail -10 "/mnt/f/fusarium WGS/ALL GENOMES/MASH_ANALYSIS/Fusarium_781_Mash_analysis.log"
 ```
 
-### 9.9 Check Running Processes
+Check running processes:
 
 ```bash
 pgrep -af 'mashtree|mash|quicktree'
 ```
 
-**Important:** tmux protects against ordinary terminal closure. It does not protect against terminating WSL, shutting down Windows, restarting the computer or power loss. Keep the computer powered on during the analysis.
+**Important:** tmux protects against ordinary terminal closure, but not against terminating WSL, restarting Windows, shutting down the computer or power loss.
 
----
+## 9. Final Output Validation
 
-## 10. Final Output Verification
+The analysis should be considered complete only after the tree, matrix and bootstrap processing have been validated.
 
-The final outputs must be checked before the analysis is considered complete.
-
-### 10.1 Navigate to the Analysis Directory
+### 9.1 Navigate to the Output Directory
 
 ```bash
 cd "/mnt/f/fusarium WGS/ALL GENOMES/MASH_ANALYSIS"
 ```
 
-### 10.2 Check Output Files
+### 9.2 Check Output Files
 
 ```bash
 ls -lh Fusarium_781_Mash*
 ```
 
-The tree and distance matrix must both exist and have nonzero file sizes.
-
-### 10.3 Verify the Distance Matrix
+### 9.3 Verify Distance Matrix
 
 ```bash
 wc -l Fusarium_781_Mash_distance_matrix.tsv
@@ -713,25 +535,25 @@ Expected:
 782 Fusarium_781_Mash_distance_matrix.tsv
 ```
 
-This represents one header line and 781 genome rows, assuming the standard matrix output contains one row per genome.
+This represents one header line and 781 genome rows.
 
-### 10.4 Verify the Newick Tree
+### 9.4 Verify Newick Tree
 
 ```bash
 ls -lh Fusarium_781_Mash_tree_1000bootstraps.nwk
 ```
 
-The tree file must not be empty.
+The file must exist and must not be empty.
 
-Check its final characters:
+Check the ending:
 
 ```bash
 tail -c 100 Fusarium_781_Mash_tree_1000bootstraps.nwk
 ```
 
-A valid complete Newick tree should terminate with a semicolon.
+A complete Newick tree should terminate with a semicolon.
 
-### 10.5 Check for Errors
+### 9.5 Check for Errors
 
 ```bash
 grep -iE 'error|terminated|fatal' Fusarium_781_Mash_analysis.log
@@ -739,123 +561,96 @@ grep -iE 'error|terminated|fatal' Fusarium_781_Mash_analysis.log
 
 Unexpected errors or terminated bootstrap workers must be investigated.
 
-### 10.6 Check Bootstrap Messages
+### 9.6 Check Bootstrap Messages
 
 ```bash
 grep -i 'bootstrap' Fusarium_781_Mash_analysis.log | tail -20
 ```
 
-The bootstrap stage must finish successfully before the resulting tree is considered final.
+### 9.7 Final Validation Criteria
 
-### 10.7 Validation Criteria
-
-| Validation item | Expected condition |
+| Validation | Expected result |
 |---|---|
-| Genome input count | 781 |
+| Input genome count | 781 |
 | Distance matrix | Nonempty |
-| Distance matrix rows | 782 |
+| Matrix line count | 782 |
 | Newick tree | Nonempty |
 | Newick termination | Semicolon |
 | Genome labels | 781 unique tips |
 | Bootstrap processing | Completed |
-| Unexpected fatal errors | None |
-| Analysis exit code | 0 |
+| Fatal errors | None |
+| Exit code | 0 |
 
-A zero-byte tree, missing matrix or incomplete log does not represent a successful analysis.
+A zero-byte tree, missing matrix or incomplete bootstrap run must not be treated as a successful analysis.
 
----
+## 10. Phylogenetic Tree Visualization
 
-## 11. Downstream Phylogenetic Visualization
-
-The resulting Newick tree can be visualized using the Interactive Tree Of Life (iTOL).
+The final Newick tree can be visualized using the Interactive Tree Of Life (iTOL).
 
 Website:
 
 https://itol.embl.de/
 
-### 11.1 Tree Visualization
+### Tree Input
 
 Upload:
 
 `Fusarium_781_Mash_tree_1000bootstraps.nwk`
 
-The tree can be displayed using different layouts, including:
-
-- Rectangular.
-- Circular.
-- Radial.
-- Unrooted.
+The tree can be displayed using rectangular, circular, radial or unrooted layouts.
 
 Bootstrap support values can be displayed on internal branches where supported by the tree format.
 
-### 11.2 Distance Matrix
+### Distance Matrix
 
-The matrix file:
+The file:
 
 `Fusarium_781_Mash_distance_matrix.tsv`
 
-can be retained for:
+can be retained for pairwise distance comparisons, clustering and additional comparative genomic analyses.
 
-- Pairwise genomic distance comparisons.
-- Genome clustering.
-- Distance-based exploratory analysis.
-- Comparative genomic visualization.
-- Additional phylogenomic investigations.
+Both files should be archived together.
 
-The distance matrix and Newick tree are separate analytical outputs and should be archived together.
+## 11. Reproducibility and Data Management
 
----
-
-## 12. Reproducibility and Data Management
-
-The following practices should be maintained:
+For reproducible analysis:
 
 1. Preserve the original genome assemblies.
 2. Retain the master Excel file.
-3. Preserve the list of excluded genome accessions.
-4. Record the genome selection and matching procedure.
-5. Record all software versions.
-6. Document the Mashtree compatibility corrections.
-7. Retain the exact genome filename list used in the final run.
-8. Record the bootstrap replicate count and CPU settings.
-9. Retain the analysis log.
-10. Validate the tree and distance matrix before publication.
-11. Keep temporary analysis files until the final outputs have been validated.
-12. Avoid publishing incomplete or unverified results as final phylogenetic outputs.
+3. Preserve the 33 excluded genome identifiers.
+4. Record the software versions.
+5. Document the Mashtree compatibility corrections.
+6. Preserve the exact genome filename list.
+7. Record the bootstrap replicate count and CPU settings.
+8. Retain the analysis log.
+9. Validate the final Newick tree and distance matrix.
+10. Do not publish incomplete results as final outputs.
 
-### 12.1 Save the Conda Environment
+### 11.1 Record Conda Packages
 
 ```bash
 conda list > fusarium_tree_conda_packages.txt
 ```
 
+### 11.2 Export the Conda Environment
+
 ```bash
 conda env export --no-builds > fusarium_tree_environment.yml
 ```
 
-### 12.2 Record Software Versions
+### 11.3 Record Mash Version
 
 ```bash
 mash --version > mash_version.txt
 ```
 
+### 11.4 Record Mashtree Version
+
 ```bash
 mashtree --version > mashtree_version.txt 2>&1
 ```
 
-The installed wrapper location can be recorded using:
-
-```bash
-which mashtree_wrapper.pl
-```
-
-QuickTree location:
-
-```bash
-which quicktree
-```
-
-### 12.3 Preserve the Exact Genome Input List
+### 11.5 Preserve the Genome Input List
 
 ```bash
 cd "/mnt/f/fusarium WGS/ALL GENOMES/RESTORED_814"
@@ -863,93 +658,31 @@ cd "/mnt/f/fusarium WGS/ALL GENOMES/RESTORED_814"
 printf '%s\n' *.fna > Fusarium_781_genome_file_list.txt
 ```
 
-This file documents the genome filenames included in the analysis.
+This records the genome filenames used for the analysis.
 
----
+## 12. Analysis Status
 
-## 13. Repository Organization
+The following stages have been completed:
 
-The workflow is documented within the Fusarium Genome Atlas repository.
+- Collection of 814 original genome accessions.
+- Accession-to-assembly matching.
+- Exclusion of 33 genome assemblies.
+- Retention of 781 genome assemblies.
+- Filename standardization.
+- Final dataset verification.
+- Mashtree compatibility corrections.
+- Preliminary 20-genome bootstrap test.
 
-Relevant repository structure:
+The full 781-genome, 1,000-bootstrap analysis requires final validation of the Newick tree, distance matrix, analysis log and exit code before being declared complete.
 
-```text
-fusarium-genome-atlas/
-│
-├── docs/
-│   ├── figures/
-│   └── methodology/
-│       ├── mash_phylogenomics_781.md
-│       └── secretome_effector_workflow.md
-│
-├── scripts/
-│   ├── comparative_genomics/
-│   │   ├── README.md
-│   │   └── mashtree_781.sh
-│   │
-│   ├── gene_prediction/
-│   ├── genome_quality/
-│   ├── metadata_retrieval/
-│   └── secretome_analysis/
-│
-├── .gitignore
-├── LICENSE
-├── README.md
-└── requirements.txt
-```
+## 13. Methodological Note
 
-The comparative genomics directory contains the executable Bash workflow and its corresponding documentation.
+Mash-based genomic distances provide a genome-wide measure of sequence similarity. Mashtree uses these distances for phylogenetic reconstruction, with QuickTree used during tree construction.
 
-The detailed methodology is maintained separately under `docs/methodology/`.
+Bootstrap support values estimate the stability of internal groupings under the implemented resampling procedure.
 
----
+The resulting phylogeny represents a distance-based overview of genomic relationships among the selected *Fusarium* assemblies.
 
-## 14. Analysis Status
-
-The dataset preparation and preliminary technical testing have been completed.
-
-The workflow has undergone the following stages:
-
-| Workflow stage | Status |
-|---|---|
-| Original accession collection | Completed |
-| Accession-to-assembly matching | Completed |
-| Genome exclusion | Completed |
-| Filename standardization | Completed |
-| Final dataset verification | Completed |
-| Mashtree compatibility corrections | Completed |
-| 20-genome preliminary test | Completed |
-| Full 781-genome analysis | Awaiting final validation |
-| 1,000-bootstrap tree | Awaiting final validation |
-| Final distance matrix | Awaiting final validation |
-| iTOL visualization | Pending final tree |
-
-The full-scale analysis must be marked complete only after the Newick tree, distance matrix, bootstrap processing and analysis log have been successfully validated.
-
----
-
-## 15. Methodological Notes
-
-This workflow uses Mash-based genomic distances to summarize genome-wide sequence similarity and Mashtree for phylogenetic reconstruction.
-
-QuickTree is used during the tree-building stage.
-
-Bootstrap replicates are used to estimate support for internal tree groupings under the implemented resampling procedure.
-
-The resulting tree represents a distance-based genome-wide phylogenetic overview of the selected *Fusarium* assemblies.
-
-Interpretation should consider the limitations of distance-based phylogenetic methods, genome assembly quality, taxonomic identification and the composition of the selected dataset.
+Interpretation should consider assembly quality, genome composition, taxonomic identification and the limitations of distance-based phylogenetic methods.
 
 Bootstrap support should not be interpreted as a direct measure of evolutionary divergence or species identity.
-
-The tree should be evaluated alongside additional evidence, including genome quality, taxonomic information, marker-based phylogeny and comparative genomic analyses.
-
----
-
-## 16. Acknowledgment
-
-This workflow forms part of the *Fusarium Genome Atlas*, a comparative genomics project focused on the genomic diversity, evolutionary relationships, genome architecture and pathogenicity-associated features of *Fusarium*.
-
-The workflow is intended to support reproducible genome-wide distance analysis and downstream phylogenomic investigation.
-
-Software versions, dataset composition, analysis parameters and final output files should be documented when reporting or publishing the results.
